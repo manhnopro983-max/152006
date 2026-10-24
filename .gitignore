@@ -5,3 +5,5 @@ node_modules/
 postgres_data/
 *.md
 **/*.md
+!README.md
+.vscode/

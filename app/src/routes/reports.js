@@ -3,10 +3,22 @@ const pool = require('../db');
 
 const router = Router();
 
+function validDate(value) {
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) &&
+    !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) &&
+    new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+}
+
+function invalidDateRange(startDate, endDate) {
+  return (startDate && !validDate(startDate)) || (endDate && !validDate(endDate)) ||
+    (startDate && endDate && startDate > endDate);
+}
+
 // GET /api/reports/summary — total income, expense, balance
 router.get('/summary', async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
+    if (invalidDateRange(startDate, endDate)) return res.status(400).json({ error: 'Khoảng ngày báo cáo không hợp lệ' });
     const conditions = [];
     const params = [];
 
@@ -43,6 +55,8 @@ router.get('/summary', async (req, res) => {
 router.get('/by-category', async (req, res) => {
   try {
     const { startDate, endDate, type } = req.query;
+    if (invalidDateRange(startDate, endDate)) return res.status(400).json({ error: 'Khoảng ngày báo cáo không hợp lệ' });
+    if (type && !['income', 'expense'].includes(type)) return res.status(400).json({ error: 'Loại giao dịch không hợp lệ' });
     const conditions = [];
     const params = [];
 
@@ -54,7 +68,7 @@ router.get('/by-category', async (req, res) => {
       params.push(endDate);
       conditions.push(`t.occurred_on <= $${params.length}`);
     }
-    if (type && ['income', 'expense'].includes(type)) {
+    if (type) {
       params.push(type);
       conditions.push(`t.type = $${params.length}`);
     }
@@ -88,7 +102,10 @@ router.get('/by-category', async (req, res) => {
 router.get('/monthly', async (req, res) => {
   try {
     const { months } = req.query;
-    const limit = Math.min(parseInt(months) || 6, 24);
+    if (months !== undefined && (!/^\d+$/.test(months) || Number(months) < 1 || Number(months) > 24)) {
+      return res.status(400).json({ error: 'months phải nằm trong khoảng 1 đến 24' });
+    }
+    const limit = months === undefined ? 6 : Number(months);
 
     const result = await pool.query(`
       SELECT

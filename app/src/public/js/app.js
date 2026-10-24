@@ -320,8 +320,8 @@ const App = {
             {
               label: 'Thu nhập',
               data: data.map(d => Number(d.income)),
-              backgroundColor: 'rgba(16, 185, 129, 0.7)',
-              borderColor: '#10b981',
+              backgroundColor: 'rgba(5, 150, 105, 0.85)',
+              borderColor: '#059669',
               borderWidth: 2,
               borderRadius: 6,
               borderSkipped: false,
@@ -329,8 +329,8 @@ const App = {
             {
               label: 'Chi tiêu',
               data: data.map(d => Number(d.expense)),
-              backgroundColor: 'rgba(239, 68, 68, 0.7)',
-              borderColor: '#ef4444',
+              backgroundColor: 'rgba(220, 38, 38, 0.85)',
+              borderColor: '#dc2626',
               borderWidth: 2,
               borderRadius: 6,
               borderSkipped: false,
@@ -341,7 +341,7 @@ const App = {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { labels: { color: '#94a3b8', font: { family: 'Inter' } } },
+            legend: { labels: { color: '#334155', font: { family: 'Inter', weight: 600 } } },
             tooltip: {
               callbacks: {
                 label: (ctx) => `${ctx.dataset.label}: ${App.formatCurrency(ctx.raw)}`
@@ -349,13 +349,14 @@ const App = {
             }
           },
           scales: {
-            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(45,53,85,0.4)' } },
+            x: { ticks: { color: '#64748b', font: { family: 'Inter', weight: 500 } }, grid: { color: 'rgba(226, 232, 240, 0.8)' } },
             y: {
               ticks: {
-                color: '#94a3b8',
+                color: '#64748b',
+                font: { family: 'Inter', weight: 500 },
                 callback: (v) => (v / 1000000).toFixed(0) + 'M'
               },
-              grid: { color: 'rgba(45,53,85,0.4)' }
+              grid: { color: 'rgba(226, 232, 240, 0.8)' }
             }
           }
         }
@@ -386,8 +387,8 @@ const App = {
           labels: data.map(d => `${d.category_icon} ${d.category_name}`),
           datasets: [{
             data: data.map(d => Number(d.total)),
-            backgroundColor: data.map(d => d.category_color || '#6366f1'),
-            borderColor: '#1a1f35',
+            backgroundColor: data.map(d => d.category_color || '#4f46e5'),
+            borderColor: '#ffffff',
             borderWidth: 3,
             hoverOffset: 8,
           }]
@@ -399,7 +400,7 @@ const App = {
           plugins: {
             legend: {
               position: 'right',
-              labels: { color: '#94a3b8', font: { family: 'Inter', size: 12 }, padding: 12 }
+              labels: { color: '#334155', font: { family: 'Inter', size: 12, weight: 600 }, padding: 12 }
             },
             tooltip: {
               callbacks: {
@@ -675,8 +676,8 @@ const App = {
         labels: data.map(d => `${d.category_icon} ${d.category_name}`),
         datasets: [{
           data: data.map(d => Number(d.total)),
-          backgroundColor: data.map(d => d.category_color || '#6366f1'),
-          borderColor: '#1a1f35',
+          backgroundColor: data.map(d => d.category_color || '#4f46e5'),
+          borderColor: '#ffffff',
           borderWidth: 3,
         }]
       },
@@ -686,7 +687,7 @@ const App = {
         plugins: {
           legend: {
             position: 'bottom',
-            labels: { color: '#94a3b8', font: { family: 'Inter' }, padding: 16 }
+            labels: { color: '#334155', font: { family: 'Inter', weight: 600 }, padding: 16 }
           },
           tooltip: {
             callbacks: {

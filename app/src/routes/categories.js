@@ -3,10 +3,28 @@ const pool = require('../db');
 
 const router = Router();
 
+function validId(value) {
+  return typeof value === 'string' && /^[1-9]\d*$/.test(value) && Number.isSafeInteger(Number(value));
+}
+
+function validColor(value) {
+  return value === undefined || value === null || (typeof value === 'string' && /^#[0-9a-fA-F]{6}$/.test(value));
+}
+
+function validIcon(value) {
+  return value === undefined || value === null || (typeof value === 'string' && Array.from(value).length <= 10);
+}
+
 // GET /api/categories — list all categories (optionally filter by type)
 router.get('/', async (req, res) => {
   try {
     const { type, active } = req.query;
+    if (type !== undefined && !['income', 'expense'].includes(type)) {
+      return res.status(400).json({ error: 'Loại danh mục không hợp lệ' });
+    }
+    if (active !== undefined && !['true', 'false'].includes(active)) {
+      return res.status(400).json({ error: 'Trạng thái danh mục không hợp lệ' });
+    }
     let query = 'SELECT * FROM categories';
     const conditions = [];
     const params = [];
@@ -37,6 +55,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    if (!validId(id)) return res.status(400).json({ error: 'Mã danh mục không hợp lệ' });
     const result = await pool.query('SELECT * FROM categories WHERE id = $1', [id]);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Danh mục không tồn tại' });
@@ -51,7 +70,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/categories — create
 router.post('/', async (req, res) => {
   try {
-    const { name, type, color, icon } = req.body;
+    const { name, type, color, icon } = req.body || {};
 
     // Validation
     if (!name || typeof name !== 'string' || name.trim().length === 0) {
@@ -62,6 +81,9 @@ router.post('/', async (req, res) => {
     }
     if (!type || !['income', 'expense'].includes(type)) {
       return res.status(400).json({ error: 'Loại phải là income hoặc expense' });
+    }
+    if (!validColor(color) || !validIcon(icon)) {
+      return res.status(400).json({ error: 'Màu sắc hoặc biểu tượng danh mục không hợp lệ' });
     }
 
     const result = await pool.query(
@@ -80,13 +102,19 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, color, icon, is_active } = req.body;
+    const { name, color, icon, is_active } = req.body || {};
+
+    if (!validId(id)) return res.status(400).json({ error: 'Mã danh mục không hợp lệ' });
 
     if (name !== undefined && (typeof name !== 'string' || name.trim().length === 0)) {
       return res.status(400).json({ error: 'Tên danh mục không hợp lệ' });
     }
     if (name && name.trim().length > 100) {
       return res.status(400).json({ error: 'Tên danh mục tối đa 100 ký tự' });
+    }
+    if (!validColor(color) || !validIcon(icon) ||
+        (is_active !== undefined && typeof is_active !== 'boolean')) {
+      return res.status(400).json({ error: 'Thuộc tính danh mục không hợp lệ' });
     }
 
     const result = await pool.query(
@@ -113,6 +141,7 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    if (!validId(id)) return res.status(400).json({ error: 'Mã danh mục không hợp lệ' });
 
     // Check if category has transactions
     const txCheck = await pool.query(

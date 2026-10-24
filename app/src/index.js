@@ -59,16 +59,16 @@ app.use('/api/categories',   categoriesRouter);
 app.use('/api/transactions', transactionsRouter);
 app.use('/api/reports',      reportsRouter);
 
-// SPA fallback — serve index.html for non-API routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
 // --------------- Error handling ---------------
 
 // 404 for API routes
-app.use('/api/*', (req, res) => {
+app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'Endpoint không tồn tại' });
+});
+
+// SPA fallback — serve index.html for non-API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Global error handler — never expose stack traces

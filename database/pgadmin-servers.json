@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Expense Tracker - PostgreSQL",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "expense_tracker",
+      "Username": "expense_app",
+      "SSLMode": "prefer",
+      "Comment": "Tài khoản ứng dụng; nhập APP_DB_PASSWORD khi pgAdmin yêu cầu"
+    }
+  }
+}
