@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Chi tiêu — Expense Tracker</title>
+    <meta name="description" content="Ứng dụng quản lý chi tiêu cá nhân, theo dõi thu chi và báo cáo tài chính">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">💰</div>
+            <h1 class="logo-text">Chi tiêu</h1>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" data-tab="dashboard" id="nav-dashboard">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Tổng quan</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="transactions" id="nav-transactions">
+                <span class="nav-icon">💳</span>
+                <span class="nav-label">Giao dịch</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="categories" id="nav-categories">
+                <span class="nav-icon">📁</span>
+                <span class="nav-label">Danh mục</span>
+            </a>
+            <a href="#" class="nav-item" data-tab="reports" id="nav-reports">
+                <span class="nav-icon">📈</span>
+                <span class="nav-label">Báo cáo</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="version-info">Expense Tracker v1.0</div>
+        </div>
+    </aside>
+
+    <!-- Mobile header -->
+    <header class="mobile-header" id="mobile-header">
+        <button class="menu-toggle" id="menu-toggle" aria-label="Toggle menu">☰</button>
+        <h1>💰 Chi tiêu</h1>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+
+        <!-- ==================== DASHBOARD ==================== -->
+        <section id="dashboard" class="tab-content active">
+            <div class="page-header">
+                <h2 class="page-title">Tổng quan</h2>
+                <div class="date-range-picker">
+                    <input type="month" id="dashboard-month" class="input-field">
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid" id="stats-grid">
+                <div class="stat-card stat-income">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Tổng thu</span>
+                        <span class="stat-value" id="stat-income">0 ₫</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-expense">
+                    <div class="stat-icon">📉</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Tổng chi</span>
+                        <span class="stat-value" id="stat-expense">0 ₫</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-balance">
+                    <div class="stat-icon">💎</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Số dư</span>
+                        <span class="stat-value" id="stat-balance">0 ₫</span>
+                    </div>
+                </div>
+                <div class="stat-card stat-count">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-info">
+                        <span class="stat-label">Giao dịch</span>
+                        <span class="stat-value" id="stat-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Thu chi theo tháng</h3>
+                    <div class="chart-container">
+                        <canvas id="monthly-chart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h3 class="chart-title">Chi tiêu theo danh mục</h3>
+                    <div class="chart-container">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Giao dịch gần đây</h3>
+                </div>
+                <div class="table-wrapper" id="recent-transactions">
+                    <p class="empty-state">Đang tải...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== TRANSACTIONS ==================== -->
+        <section id="transactions" class="tab-content">
+            <div class="page-header">
+                <h2 class="page-title">Giao dịch</h2>
+                <button class="btn btn-primary" id="btn-add-transaction" onclick="App.showTransactionForm()">
+                    <span>+</span> Thêm giao dịch
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar" id="transaction-filters">
+                <div class="filter-group">
+                    <label>Từ ngày</label>
+                    <input type="date" id="filter-start" class="input-field">
+                </div>
+                <div class="filter-group">
+                    <label>Đến ngày</label>
+                    <input type="date" id="filter-end" class="input-field">
+                </div>
+                <div class="filter-group">
+                    <label>Loại</label>
+                    <select id="filter-type" class="input-field">
+                        <option value="">Tất cả</option>
+                        <option value="income">Thu</option>
+                        <option value="expense">Chi</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Danh mục</label>
+                    <select id="filter-category" class="input-field">
+                        <option value="">Tất cả</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" onclick="App.loadTransactions()">Lọc</button>
+            </div>
+
+            <!-- Table -->
+            <div class="card">
+                <div class="table-wrapper">
+                    <table class="data-table" id="transactions-table">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Loại</th>
+                                <th>Danh mục</th>
+                                <th>Số tiền</th>
+                                <th>Ghi chú</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactions-tbody">
+                            <tr><td colspan="6" class="empty-state">Đang tải...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination" id="transactions-pagination"></div>
+            </div>
+        </section>
+
+        <!-- ==================== CATEGORIES ==================== -->
+        <section id="categories" class="tab-content">
+            <div class="page-header">
+                <h2 class="page-title">Danh mục</h2>
+                <button class="btn btn-primary" id="btn-add-category" onclick="App.showCategoryForm()">
+                    <span>+</span> Thêm danh mục
+                </button>
+            </div>
+
+            <div class="categories-section">
+                <h3 class="section-subtitle income-text">💰 Danh mục Thu</h3>
+                <div class="categories-grid" id="income-categories"></div>
+            </div>
+
+            <div class="categories-section">
+                <h3 class="section-subtitle expense-text">💸 Danh mục Chi</h3>
+                <div class="categories-grid" id="expense-categories"></div>
+            </div>
+        </section>
+
+        <!-- ==================== REPORTS ==================== -->
+        <section id="reports" class="tab-content">
+            <div class="page-header">
+                <h2 class="page-title">Báo cáo</h2>
+            </div>
+
+            <!-- Date filter for reports -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>Từ ngày</label>
+                    <input type="date" id="report-start" class="input-field">
+                </div>
+                <div class="filter-group">
+                    <label>Đến ngày</label>
+                    <input type="date" id="report-end" class="input-field">
+                </div>
+                <button class="btn btn-primary" onclick="App.loadReports()">Xem báo cáo</button>
+            </div>
+
+            <!-- Report Summary -->
+            <div class="report-summary" id="report-summary">
+                <div class="report-stat income-bg">
+                    <div class="report-stat-label">Tổng thu</div>
+                    <div class="report-stat-value" id="report-income">0 ₫</div>
+                </div>
+                <div class="report-stat expense-bg">
+                    <div class="report-stat-label">Tổng chi</div>
+                    <div class="report-stat-value" id="report-expense">0 ₫</div>
+                </div>
+                <div class="report-stat balance-bg">
+                    <div class="report-stat-label">Số dư = Tổng thu − Tổng chi</div>
+                    <div class="report-stat-value" id="report-balance">0 ₫</div>
+                </div>
+            </div>
+
+            <!-- Category breakdown -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3 class="chart-title">Tỷ trọng chi tiêu</h3>
+                    <div class="chart-container">
+                        <canvas id="report-pie-chart"></canvas>
+                    </div>
+                </div>
+                <div class="card" style="flex:1; min-width:300px;">
+                    <div class="card-header">
+                        <h3>Chi tiết theo danh mục</h3>
+                    </div>
+                    <div class="table-wrapper" id="report-category-table"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Overlay -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div class="modal" id="modal">
+            <div class="modal-header">
+                <h2 id="modal-title"></h2>
+                <button class="modal-close" onclick="App.hideModal()" aria-label="Close">&times;</button>
+            </div>
+            <div id="modal-body" class="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+    <!-- App -->
+    <script src="/js/app.js"></script>
+</body>
+</html>
