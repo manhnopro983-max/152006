@@ -8,6 +8,7 @@ const categoriesRouter   = require('./routes/categories');
 const transactionsRouter = require('./routes/transactions');
 const reportsRouter      = require('./routes/reports');
 const pool               = require('./db');
+const { register, metricsMiddleware } = require('./middleware/metrics');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -29,10 +30,19 @@ app.use(morgan(':method :url :status :response-time ms'));
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Prometheus metrics middleware — track all requests
+app.use(metricsMiddleware);
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --------------- Routes ---------------
+
+// Prometheus metrics endpoint
+app.get('/metrics', async (req, res) => {
+  res.set('Content-Type', register.contentType);
+  res.end(await register.metrics());
+});
 
 // Health check endpoint
 app.get('/api/health', async (req, res) => {
